@@ -7,7 +7,8 @@
 local voucherId = ARGV[1]
 --- 1.2 用户id
 local userId = ARGV[2]
-
+--- 1.3 订单id
+local orderId = ARGV[3]
 --- 数据key
 --- 库存key  通过该key获取 库存,  lua脚本使用 .. 来拼接字符串
 local stock = 'seckill:stock:' .. voucherId
@@ -29,6 +30,8 @@ end
 redis.call('incrby', stock,-1)
 --- 保存该订单,
 redis.call('sadd',order,userId)
+--- 发送消息,将订单的所用信息发送,用户id，优惠券id，自己的id（订单id）
+redis.call('xadd','stream.orders','*','userId',userId,'voucherId',voucherId,'id',orderId)
 return 0
 
 
